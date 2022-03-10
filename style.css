@@ -8,13 +8,13 @@
     --clr-white: 0 0% 100%;
 
     /* font sizes */
-    --fs-900: 9.375rem;
-    --fs-800: 6.275rem;
-    --fs-700: 3.5rem;
-    --fs-600: 2rem;
-    --fs-500: 1.75rem;
-    --fs-400: 1.125rem;
-    --fs-300: 1rem;
+    --fs-900: clamp(3rem, 8vw + 1rem, 9.375rem);
+    --fs-800: 3.5rem;
+    --fs-700: 1.75rem;
+    --fs-600: 1.5rem;
+    --fs-500: 1rem;
+    --fs-400: 0.9375rem;
+    --fs-300: 0.9rem;
     --fs-200: 0.875rem;
 
     /* font families */
@@ -22,6 +22,24 @@
     --ff-serif: 'Bellefair', serif;
     --ff-sans-cond: 'Barlow Condensed', sans-serif;
     --ff-sans: 'Barlow', sans-serif;
+}
+
+@media (min-width: 35em) {
+    :root {
+    --fs-800: 5rem;
+    --fs-700: 2.5rem;
+    --fs-600: 1.5rem;
+    --fs-400: 1rem;
+    }
+}
+
+@media (min-width: 45em) {
+    :root {
+    --fs-800: 6.25rem;
+    --fs-700: 3.5rem;
+    --fs-600: 2rem;
+    --fs-400: 1.125rem;
+    }
 }
 
 
@@ -60,6 +78,11 @@ body {
     color: hsl( var(--clr-light) );
     background-color: hsl( var(--clr-dark) );
     font-weight: 400;
+
+    display: grid;
+    grid-template-rows: min-content 1fr;
+
+    overflow-x: hidden;
 }
 
 /* make images easier to work with */
@@ -106,6 +129,10 @@ button {
     gap: var(--gap, 1rem);
 }
 
+.d-block {
+    display: block;
+}
+
 /*== apply this style for all children execpt firt child == */
 
 /*
@@ -123,15 +150,45 @@ button {
 
 .flow > *:where(:not(:first-child)) {
     margin-top: var(--flow-space, 1rem);
-    outline: 1px solid blue;
 }
 .container {
     max-width: 80rem;
-    padding-inline: 2rem;
+    padding-inline: 2em;
     margin-inline: auto;
 }
 
-.sr-only {
+.grid-container {
+    display: grid;
+    text-align: center;
+    place-items: center;
+    padding-inline: 1rem;
+}
+
+.grid-container * {
+    max-width: 50ch;
+}
+
+
+@media (min-width: 45em) {
+    .grid-container {
+        column-gap: var(--container-gap, 2rem);
+        grid-template-columns: minmax(2rem, 1fr) repeat(2, minmax(0, 40rem)) minmax(2rem, 1fr);
+        text-align: left;
+    }
+
+    .grid-container > *:first-child {
+        grid-column: 2;
+    }
+    .grid-container > *:last-child {
+        grid-column: 3;
+    }
+    .grid-container--home {
+        padding-bottom: max(2rem, 15vh);
+    }
+}
+
+
+.sr-only { 
     position: absolute;
     width: 1px;
     height: 1px;
@@ -204,7 +261,8 @@ button {
 /*---------------------*/
 
 .large-button {
-    display: grid;
+    display: inline-grid;
+    font-size: 2rem;
     padding: 0 2em;
     place-items: center;
     aspect-ratio: 1;
@@ -232,14 +290,32 @@ button {
     transform: scale(1.2);
 }
 
-.primary-navigation {
-    --gap:8rem;
-    list-style-type: none;
-    padding: 0;
-    margin: 0;
-    --underline-gap: 2rem
+.primary-header {
+    justify-content: space-between;
+    align-items: center;
 }
 
+.logo {
+    margin: 1.5rem clamp(1.5rem, 5vw, 3.5rem);
+}
+
+.mobile-nav-toggle {
+    display: none;
+}
+
+.primary-navigation {
+    --underline-gap: 2rem;
+    --gap: clamp(1.5rem, 5vw, 3.5rem);
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    background-color: hsl( var(--clr-dark) / 0.9);
+    transition: all 0.5s;
+}
+
+.primary-navigation[data-visible="true"] {
+    transform: translateX(0);
+}
 
 .primary-navigation a {
     text-decoration: none;
@@ -248,6 +324,104 @@ button {
 .primary-navigation a > span {
     font-weight: 700;
     margin-right: .5em;
+}
+
+/* @supports (backdrop-filter: blur(1rem)) {
+    .primary-navigation {
+        background: hsl( var(--clr-white) / 0.9 );
+        backdrop-filter: blur(1.5rem);
+    }
+} */
+
+@media (max-width: 45rem ) {
+    .primary-navigation {
+        margin: 0;
+        --underline-gap: 2rem;
+        position: fixed;
+        inset: 0 0 0 30%;
+        padding: min(20rem, 20vh) 2rem;
+        flex-direction: column;
+        z-index: 1000;
+        transform: translateX(100%);
+    }
+
+    .primary-navigation.underline-indicators > .active {
+       border: 0;
+    }
+    .mobile-nav-toggle {
+        display: block;
+        position: absolute;
+        z-index: 2000;
+        right: 1rem;
+        top: 2rem;
+        background: transparent;
+        background-image: url('./assets/icon-hamburger.svg');
+        background-repeat: no-repeat;
+        background-position: center;
+        width: 1.5rem;
+        aspect-ratio: 1;
+        cursor: pointer;
+        border: none;
+    }
+
+    .mobile-nav-toggle[aria-expanded="true"] {
+        background-image: url('./assets/icon-close.svg');
+    }
+
+    .mobile-nav-togle:focus-visible {
+        outline: 5px solid white;
+        outline-offset: 5px;
+    }
+}
+
+@media (min-width: 45em) and (max-width: 59.999em) {
+    .primary-navigation {
+        padding-inline: 3rem;
+    }
+
+    .primary-navigation a > span {
+       display: none;
+    }
+}
+
+
+@media (min-width:60em) {
+    .primary-navigation {
+        margin-block: 2rem;
+    }
+}
+
+/* @media (min-width: 45em) {
+    .primary-header::after {
+        content: '';
+        display: block;
+        position: relative;
+        height: 1px;
+        width: 50%;
+        background-color: #fff;
+        order: 1;
+        margin-right: 2.5rem;  
+    }
+
+    nav {
+        order: 2;
+    }
+
+} */
+
+.skip-to-content {
+    position: absolute;
+    z-index: 9999;
+    background: hsl( var(--clr-white) );
+    color: hsl( var(--clr-dark) );
+    margin-inline: auto;
+    padding: .5em 1em;
+    transform: translateY(-100%);
+    transition: transform 250ms ease-in;
+}
+
+.skip-to-content:focus {
+    transform: translateY(0);
 }
 
 .underline-indicators > * {
@@ -315,4 +489,40 @@ button {
     color: hsl( var(--clr-light) );
 }
 
+
+.logo-box {
+    min-width: 40px;
+    min-height: 40px;
+}
+.logo {
+    max-width: 40px;
+}
+
+
+/*---------------------*/
+/*         pages       */
+/*---------------------*/
+body {
+    background-size: cover;
+    background-position: bottom center;
+}
+/* home */
+.home {
+    background: url('./assets/background-home-mobile.jpg');
+    background-size: cover;
+}
+
+@media (min-width: 35em) {
+    .home {
+        background-position: center center;
+        background-image: url('./assets/background-home-tablet.jpg');
+    }
+}
+
+@media (min-width: 45em) {
+    .home {
+        background-position: center center;
+        background-image: url('./assets/background-home-desktop.jpg');
+    }
+}
 
